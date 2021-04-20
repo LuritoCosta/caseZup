@@ -1,0 +1,129 @@
+/* Body */ 
+
+th,td{
+  width: 50px;
+}
+
+body {
+    font-family: 'Calibri Light';
+    font-size: 18px;
+    color: #666666;
+    font-weight: 300;
+}
+
+
+h1 {
+    font-family: 'Arial';
+    font-size: 26px;
+    color: #666666;
+    font-weight: 700;
+    padding: 0 0 0 0;
+}
+
+h1.title {
+    font-family: 'Arial';
+    font-size: 34px;
+    font-weight: 700;
+    padding: 1.2em 0 0 0;
+}
+
+
+h2 {
+    font-family: 'Arial';
+    font-size: 24px;
+    color: #666666;
+    font-weight: 500;
+    padding: 0 0 0 0;
+
+}
+
+.section h3 {
+    padding-top: 0 ;
+    margin-top: 0 ;
+    font-size: 21px;
+    padding: 1em 0 .5em 0;
+    font-weight: 500;
+}
+
+h3 {
+    font-family: 'Arial';
+    font-size: 21px;
+    padding: 1em 0 .5em 0;
+    font-weight: 400;
+}
+
+
+.section  {
+    padding-top: 0 ;
+    margin-top: 0 ;
+    padding: 1em 0 .5em 0;
+}
+
+h4 {   
+    font-family: 'Arial';
+    font-size: 18px;
+    font-weight: 500;
+}
+
+h5 {   
+    font-family: 'Arial';
+    font-size: 16px;
+    font-weight: 700;
+}
+
+
+@media only screen and (min-width: 768px) {
+.executive_summary {
+    font-family: 'Calibri Light';
+    font-size: 18px;
+    padding: 0 20px 1.5em 45px;
+  }
+}
+
+
+/* Datatable, bootstrap style */
+table.dataTable {
+  font-size: 16px;
+}
+
+.pagination>li {
+    font-size: 16px;
+}
+
+.pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover {
+    z-index: 2;
+    color: #fff;
+    cursor: default;
+    background-color: #666;
+    border-color: #666;
+}
+
+
+
+/* TOC */
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
+    z-index: 2;
+    color: #fff;
+    background-color: #666666;
+    border-color: #666666;
+}
+
+.tocify {
+  border: 1px solid #cccccc;
+}
+
+/* LINKS and tabs */
+
+a {
+    color: #337ab7;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #337ab7;
+}
+
+.nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+    color: #fff;
+    background-color: #ffdb00;
+}
