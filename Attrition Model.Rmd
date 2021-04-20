@@ -1,0 +1,161 @@
+---
+title: "Attrition Model | Case ZUP"
+output:
+  html_document:
+    css: www/estilos.css
+    df_print: default
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+---
+```{r, include=FALSE}
+
+# Definições gerais para os *chunks*
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,error = FALSE)
+
+```
+Com o imenso volume de dados sendo criado atualmente, é vital que as empresas saibam coletar e utilizar dados que possam dar a elas vantagens competitivas no mercado.
+
+O objetivo deste case é analisar e buscar soluções para diminuir o Turnover, e aumentar a retenção de bons profissionais nas empresas.
+
+Utilizando dados disponibilizados, construiremos um modelo de Machine Learning capaz de nos ajudar a prever possíveis atritos, que podem ajudar a empresa a tomar decisões afim de minimizar esses efeitos, aumentar a qualidade de vida no ambiente de trabalho, e reter os bons profissionais da empresa.
+
+
+
+# Analises estatística basica das variaveis do tipo numerica
+
+```{r}
+
+knitr::kable(df_attrition.num, "html") %>% 
+    # kableExtra::column_spec(2:30, width = "1000em") %>% 
+    kableExtra::kable_styling(#full_width = F,
+                              bootstrap_options = c("striped", "hover","condensed","responsive"))  %>% 
+    kableExtra::scroll_box(width = "100%",height = "300px")
+    
+    
+```
+
+
+Algumas informações básicas podem ser retiradas desta distribuição estatística, como por exemplo:
+
+* A média de idade na empresa é de quase 37 anos de idade.
+* A maioria dos funcionários possui Ensino Superior.
+* Como se trata de um conjunto de dados oriundo dos Estados Unidos, consideramos os valores monetários como Dólar. Neste caso, o salário médio mensal da empresa é de US$6502.93.
+
+# Analises estatística basica das variaveis do tipo texto
+
+```{r}
+
+df_attrition.char %>%
+  summarytools::dfSummary(graph.col =  FALSE,
+                          varnumbers = FALSE,
+                          #col.widths = c("100px","","100px","100px","100px"),
+                          style = 'grid',
+                          )
+```
+
+A variável `Attrition` ("Atrito"), indica se o funcionário possui atrito, problema, no ambiente de trabalho. Usaremos ela como variável alvo do nosso modelo de Machine Learning. No nosso dataset, ela seria a categoria mais marcante de motivo para que o profissional saia da empresa, e por isso focamos nela.
+
+Com acesso a mais dados, poderíamos usar outros indicadores, ou criar novas features que representem melhor a chance de um funcionário deixar a empresa.
+
+* A maior parte dos funcionários nâo apresenta atritos.
+* O departamento com mais funcionários na empresa é Pesquisa e Desenvolvimento.
+* Homens são maioria na empresa.
+* O emprego mais comum na empresa é de Executivo de Vendas.
+* A maioria dos funcionários é casado.
+* A grande maioria dos funcionários não faz hora extra.
+
+```{r,fig.height=3}
+df_attrition %>%  
+  group_by(Attrition) %>% 
+  summarise(Qtd = n()) %>% 
+  ggplot(aes(x=Attrition,y=Qtd, fill=c("#999999", "#E69F00") ))+
+  geom_bar(stat='identity')+
+  theme_minimal()+
+  theme(legend.position = "none")
+```
+
+Conclusões
+
+Isso significa que 237 (16%) dos 1470 funcionários listados nesse conjunto de dados têm atritos. 
+
+Isso pode ser aceitável, dependendo dos indicadores da empresa, mas para o modelo de Machine Learning não é o ideal, e assim iremos balancear nosso dataset para podemos fazer o Fit no modelo.
+
+# Gráfico de Densidade
+
+Gráficos de Densidade são ferramentas visuais poderosas, que podem nos ajudar a ter insights valiosos.
+
+Nosso principal objetivo aqui é analisar a distribuição das variáveis para as duas possibilidades do nosso problema de classificação.
+
+Ao analisarmos as diferenças de distribuição das variáveis para cada classe, podemos identificar variáveis mais relevantes para o nosso problema.
+
+```{r, fig.width=10,fig.height=15}
+#graficos de densidade
+
+ggpubr::ggarrange(plotlist =  charts,
+          ncol = 4,
+          nrow = 6,
+          common.legend = TRUE, 
+          legend = "top",
+          align = "v")
+
+```
+
+## Insights sobre os gráficos de densidade
+
+Os Gráficos de Densidade são ferramentas interessantes para analisarmos as distribuições de acordo com as classes.
+
+> A representação azul é para funcionários que apresentam atritos e a representação rosa para funcionários que não apresentam atrito.
+
+O que buscamos aqui são diferenças nas distribuições para podermos encontrar pontos chave para previsão de atrito entre os funcionários.
+
+No geral, as distribuições são bastante parecidas, não havendo grande discrepância. Por isso, destacarei aqui somente as discrepâncias entre as categorias.
+
+Entre os principais insights obtidos, podemos destacar:
+
+* Na variável `Age` (Idade), percebemos que quanto mais jovem, mais propensão a atrito há.
+
+* Em relação à distância de casa (`DistanceFromHome`), percebemos que quanto maior a distância, mais propenso o funcionário está a atrito.
+
+* Na variável `JobInvolvement`(Envolvimento no Trabalho), podemos perceber que indivíduos menos envolvidos tendem a ter mais atrito.
+
+* `JobLevel` (Nível no Emprego) mostra que funcionários em níveis mais baixos tendem a ter mais atrito. O mesmo acontece para as variáveis `JobSatisfaction` e `MonthlyIncome`, (Satisfação no Trabalho e Renda Mensal, respectivamente).
+
+* `StockOptionLevel` (ESOs) e `TotalWorkingYears` (Total de Anos Trabalhando), também demonstram diminuição nos atritos conforme os números aumentam.
+
+* `YearsAtCompany` (Anos na Empresa), `YearsInCurrentRole` (Anos na Posição Atual), `YearsSinceLastPromotion` (Anos Desde a Última Promoção), `YearsWithCurrManager` (Anos Com o Mesmo Gerente) apresentam maior atrito nos menores períodos de tempo, e evolução ao longo do tempo. Isso pode sugerir dificuldades de adaptação, pois quanto menor o tempo, maior o atrito.
+
+# Modelo estatístico | Random Forest
+
+Neste case utilizei o modelo  **Random Forest**, que em tradução livre, significa "Floresta Aleatória".
+
+<center><img alt='Random Forest' width='60%'src="https://cdn-cms.f-static.net/uploads/892738/2000_5b61d8595accd.jpg"></center>
+
+Como o nome sugere, ele é baseado em modelos de árvore de decisão. A diferença é que ele cria **muitas árvores de decisão de maneira aleatória**.
+
+
+# Variáveis Mais Importantes
+
+Outra verificação interessante que podemos fazer é em relação às features (variáveis) mais importantes para o resultado do modelo.
+
+```{r}
+h6
+```
+
+# Conclusões - Random Forest
+
+As variáveis mais importantes são muito valiosas, pois podem nos dar insights dos pontos mais críticos para geração de atritos, e com essa informação, podemos agir preventivamente.
+
+Entre as principais variáveis, podemos destacar:
+
+* Horas Extras (OverTime) - Definitivamente a mais importante das variáveis,estando bastante acima das outras.
+
+* Salário Mensal (MonthlyIncome)
+
+* ESOs (StockOptionLevel)
+
+* Idade (Age)
+
+* Anos Trabalhando (TotalWorkingYears)
+
+Podemos identificar variáveis bastante relacionadas com a carreira, benefícios e carga horária. Altos níveis de stress? Sentimento de desvalorização? São hipóteses.
