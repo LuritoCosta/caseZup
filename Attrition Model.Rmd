@@ -79,7 +79,7 @@ Conclusões
 
 Isso significa que 237 (16%) dos 1470 funcionários listados nesse conjunto de dados têm atritos. 
 
-Isso pode ser aceitável, dependendo dos indicadores da empresa, mas para o modelo de Machine Learning não é o ideal, e assim iremos balancear nosso dataset para podemos fazer o Fit no modelo.
+Isso pode ser aceitável, dependendo dos indicadores da empresa.
 
 # Gráfico de Densidade
 
